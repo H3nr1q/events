@@ -12,9 +12,11 @@ import br.com.nlw.events.dto.SubscriptionResponse;
 import br.com.nlw.events.exceptions.EventNotFoundException;
 import br.com.nlw.events.exceptions.SubscriptionConflictException;
 import br.com.nlw.events.exceptions.UserIndicatorNotFoundException;
-import br.com.nlw.events.model.Subscription;
 import br.com.nlw.events.model.User;
 import br.com.nlw.events.services.SubscriptionService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 public class SubscriptionController {
@@ -43,5 +45,23 @@ public class SubscriptionController {
     return ResponseEntity.badRequest().build();
   }
 
+	@GetMapping("/subscription/{prettyName}/ranking")
+	public ResponseEntity<?> generatedRankingByEvent(@PathVariable String prettyName) {
+		try {
+			return ResponseEntity.ok(subscriptionService.getCompleteRanking(prettyName).subList(0, 3));
+		} catch (EventNotFoundException ex ) {
+			return ResponseEntity.status(404).body(ex.getMessage());
+		}
+	}
 
+	@GetMapping("/subscription/{prettyName}/ranking/{userId}")
+	public ResponseEntity<?> generatedRankingByEventAndUser(@PathVariable String prettyName,
+																													@PathVariable Integer userId){
+		try {
+			return ResponseEntity.ok(subscriptionService.getRankingByUser(prettyName, userId));
+		} catch (Exception ex) {
+			return ResponseEntity.status(404).body(new ErrorMessage(ex.getMessage()));
+		}
+	}
+	
 }
